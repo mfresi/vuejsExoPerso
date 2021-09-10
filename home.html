@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appli start VueJs</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="accueil" v-if="etat == false">
+                <div class="row">
+                    <div class="p-3 mb-2 bg-primary text-white text-center" style="width: 100%;">
+                        Frezo Food
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-0">
+                        <!-- Logo panier des articles -->
+                        <img src="panier.jpg" v-on:click="goPanier();" width="50px" />
+                    </div>
+                    <!-- Affichage nombre d'article dans le panier -->
+                    <div class="col-1">
+                        <p class="text-danger">{{ commandes.length }}</p>
+                    </div>
+                </div>
+                <!-- Liste des produits commandés -->
+                <h1 v-bind:class="affichage">Produits disponibles </h1>
+                <div class="row">
+                    <div class="col-3" v-for="(art, index) in article">
+                        <p style="height: 80%;" class="jumbotron">{{ art.nom }} {{ art.prix }} $ {{ art.nbOccurence }}
+                            <img class="card" style="width: 10rem; margin-bottom: 10px;" :src="art.image"></img>
+                            <button class="btn btn-primary"
+                                v-on:click="commander(art.nom, art.prix, art.image, art.nbOccurence, art.nbCommand); calculerSomme(art.prix);">Commander!</button>
+                        </p>
+                    </div>
+                    <!--<div v-if="commandes.length > 0" class="col-4">
+                        <select multiple>
+                            <option v-for="commande in commandes" v-bind:nom="commande" style="background-image:url(pizza.PNG);">{{ commande.nomProduit }} {{ commande.prix }} $ </option>
+                        </select>
+                    </div>-->
+                </div>
+            </div>
+            <div v-if="etat==true && commandes.length > 0">
+                <h1>
+                    <button class="btn btn-primary" v-on:click="goAccueil();">Accueil</button>
+                </h1>
+                <h1 v-bind:class="affichage" v-if="commandes.length > 0">Produits commandés </h1>
+                <div class="row">
+                    <div class="col-3" v-for="commande in commandes" v-bind:nom="commande" v-if="commande.nbOccurence < 1" role="recap">
+                        <p style="height: 80%;" class="jumbotron">
+                            {{ commande.nom }}
+                            <img class="card" style="width: 10rem; margin-bottom: 10px;" :src="commande.image"></img>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <p v-if="somme > 0">Total de la commande : {{ somme }} $</p>
+                    <button class="btn btn-primary" v-on:click="clearPanier();">Annuler</button>
+                    <button class="btn btn-primary" v-on:click="payer();">Payer !</button>
+                </div>
+            </div>
+            <div v-if="etat==true && commandes.length == 0">
+                <h1>
+                    <button class="btn btn-primary" v-on:click="goAccueil();">Accueil</button>
+                </h1>
+                <p>Votre Panier est vide !</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<!-- script js -->
+
+<script>
+    // Création de l'instance de Vue.
+    // On sélectionne notre balise #app qui fait office de container.
+    var app = new Vue({
+        el: "#app",
+        // Déclaration des variables.
+        data: {
+            commandes: [],
+            affichage: "display-4",
+            article: [
+                {
+                    nom: "Pizza",
+                    prix: 12,
+                    image: "pizza.PNG",
+                    nbOccurence: 0,
+                    nbCommand: 0
+                },
+                {
+                    nom: "Hamburger",
+                    prix: 11.50,
+                    image: 'burger.PNG',
+                    nbOccurence: 0,
+                    nbCommand: 0
+                },
+                {
+                    nom: "Tacos",
+                    prix: 7,
+                    image: 'tacos.PNG',
+                    nbOccurence: 0,
+                    nbCommand: 0
+                },
+                {
+                    nom: "Frites",
+                    prix: 2,
+                    image: 'frites.PNG',
+                    nbOccurence: 0,
+                    nbCommand: 0
+                },
+            ],
+            somme: 0,
+            etat: false
+        },
+        // Déclaration des méthodes.
+        methods: {
+            // Méthode commander qui permet d'envoyer un article dans le tableau commandes.
+            // Prend en parametre une variable produit qui peut être de type string.
+            commander: function (nom, prix, image, nbOccurence, nbCommand) {
+                this.commandes.push({ nom, prix, image, nbOccurence, nbCommand });
+                console.log("Nom : " + nom, "Prix : " + prix, "Url : " + image, "nbCommand : " + nbCommand);
+                if (nom == "Pizza") {
+                    this.article[0].nbOccurence += 1;
+                    this.article[0].nbCommand += 1;
+                }
+                else if (nom == "Hamburger") {
+                    this.article[1].nbOccurence += 1;
+                    this.article[1].nbCommand += 1;
+                }
+                else if (nom == "Tacos") {
+                    this.article[2].nbOccurence += 1;
+                    this.article[2].nbCommand += 1;
+                }
+                else if (nom == "Frites") {
+                    this.article[3].nbOccurence += 1;
+                    this.article[3].nbCommand += 1;
+                }
+            },
+            // Méthode cacluerSomme fait la somme des produits commandés.
+            // Prend en paramètre le prix d'un article de type int.
+            calculerSomme: function (prixArticle) {
+                this.somme += prixArticle;
+            },
+            goPanier: function () {
+                this.etat = true;
+            },
+            goAccueil: function () {
+                this.etat = false;
+            },
+            clearPanier: function () {
+                this.commandes.splice(0);
+                this.somme = 0;
+                this.etat = false;
+                this.article[0].nbOccurence = 0;
+                this.article[1].nbOccurence = 0;
+                this.article[2].nbOccurence = 0;
+                this.article[3].nbOccurence = 0;
+                this.article[0].nbCommand = 0;
+                this.article[1].nbCommand = 0;
+                this.article[2].nbCommand = 0;
+                this.article[3].nbCommand = 0;
+            },
+            payer: function () {
+                this.commandes.splice(0);
+                this.somme = 0;
+                this.etat = false;
+                this.article[0].nbOccurence = 0;
+                this.article[1].nbOccurence = 0;
+                this.article[2].nbOccurence = 0;
+                this.article[3].nbOccurence = 0;
+                this.article[0].nbCommand = 0;
+                this.article[1].nbCommand = 0;
+                this.article[2].nbCommand = 0;
+                this.article[3].nbCommand = 0;
+                console.log("Vous avez bien payé");
+            },
+        }
+    })
+</script>
